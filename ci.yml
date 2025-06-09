@@ -12,10 +12,18 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    env: # 🌍 Variables d'environnement globales
+    env: # 🌍 Variables d'environnement injectées depuis GitHub Secrets
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      NEXT_PUBLIC_DWOLLA_ENVIRONMENT=sandbox
-
+      DWOLLA_ENVIRONMENT: ${{ secrets.DWOLLA_ENVIRONMENT }}
+      DWOLLA_KEY: ${{ secrets.DWOLLA_KEY }}
+      DWOLLA_SECRET: ${{ secrets.DWOLLA_SECRET }}
+      DWOLLA_BASE_URL: ${{ secrets.DWOLLA_BASE_URL }}
+      PLAID_CLIENT_ID: ${{ secrets.PLAID_CLIENT_ID }}
+      PLAID_SECRET: ${{ secrets.PLAID_SECRET }}
+      PLAID_ENV: ${{ secrets.PLAID_ENV }}
+      PLAID_PRODUCTS: ${{ secrets.PLAID_PRODUCTS }}
+      NEXT_APPWRITE_KEY: ${{ secrets.NEXT_APPWRITE_KEY }}
+      APPWRITE_DATABASE_ID: ${{ secrets.APPWRITE_DATABASE_ID }}
 
     steps:
       - name: 🛒 Checkout repository
