@@ -2,67 +2,77 @@ name: CI - Build & Lint
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     env:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      DWOLLA_ENVIRONMENT: ${{ secrets.DWOLLA_ENVIRONMENT }}
-      DWOLLA_KEY: ${{ secrets.DWOLLA_KEY }}
-      DWOLLA_SECRET: ${{ secrets.DWOLLA_SECRET }}
-      DWOLLA_BASE_URL: ${{ secrets.DWOLLA_BASE_URL }}
-      PLAID_CLIENT_ID: ${{ secrets.PLAID_CLIENT_ID }}
-      PLAID_SECRET: ${{ secrets.PLAID_SECRET }}
-      PLAID_ENV: ${{ secrets.PLAID_ENV }}
-      PLAID_PRODUCTS: ${{ secrets.PLAID_PRODUCTS }}
-      NEXT_APPWRITE_KEY: ${{ secrets.NEXT_APPWRITE_KEY }}
-      APPWRITE_DATABASE_ID: ${{ secrets.APPWRITE_DATABASE_ID }}
+      SONAR_TOKEN:           ${{ secrets.SONAR_TOKEN }}
+      DWOLLA_ENVIRONMENT:    ${{ secrets.DWOLLA_ENVIRONMENT }}
+      DWOLLA_KEY:            ${{ secrets.DWOLLA_KEY }}
+      DWOLLA_SECRET:         ${{ secrets.DWOLLA_SECRET }}
+      DWOLLA_BASE_URL:       ${{ secrets.DWOLLA_BASE_URL }}
+      PLAID_CLIENT_ID:       ${{ secrets.PLAID_CLIENT_ID }}
+      PLAID_SECRET:          ${{ secrets.PLAID_SECRET }}
+      PLAID_ENV:             ${{ secrets.PLAID_ENV }}
+      PLAID_PRODUCTS:        ${{ secrets.PLAID_PRODUCTS }}
+      NEXT_APPWRITE_KEY:     ${{ secrets.NEXT_APPWRITE_KEY }}
+      APPWRITE_DATABASE_ID:  ${{ secrets.APPWRITE_DATABASE_ID }}
 
     steps:
-      - name: 🛒 Checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: 📦 Setup Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
-      - name: 📥 Install dependencies
+      - name: Install dependencies
         run: npm ci
 
-      - name: 📝 Create .env.production from secrets
+      # ✅ Vérif rapide : la variable est-elle vraiment là ?
+      - name: Debug env
         run: |
-          echo "DWOLLA_ENVIRONMENT=${DWOLLA_ENVIRONMENT}" >> .env.production
-          echo "DWOLLA_KEY=${DWOLLA_KEY}" >> .env.production
-          echo "DWOLLA_SECRET=${DWOLLA_SECRET}" >> .env.production
-          echo "DWOLLA_BASE_URL=${DWOLLA_BASE_URL}" >> .env.production
-          echo "PLAID_CLIENT_ID=${PLAID_CLIENT_ID}" >> .env.production
-          echo "PLAID_SECRET=${PLAID_SECRET}" >> .env.production
-          echo "PLAID_ENV=${PLAID_ENV}" >> .env.production
-          echo "PLAID_PRODUCTS=${PLAID_PRODUCTS}" >> .env.production
-          echo "NEXT_APPWRITE_KEY=${NEXT_APPWRITE_KEY}" >> .env.production
-          echo "APPWRITE_DATABASE_ID=${APPWRITE_DATABASE_ID}" >> .env.production
+          echo "DWOLLA_ENVIRONMENT = '${DWOLLA_ENVIRONMENT}'"
+          if [ -z "$DWOLLA_ENVIRONMENT" ]; then
+            echo "❌ DWOLLA_ENVIRONMENT is EMPTY – build will fail" && exit 1
+          fi
 
-      - name: 🧹 Lint the code
+      # 📝  .env.production (facultatif mais utile pour d’autres libs dotenv)
+      - name: Create .env.production
+        run: |
+          echo "DWOLLA_ENVIRONMENT=${DWOLLA_ENVIRONMENT}"          >  .env.production
+          echo "DWOLLA_KEY=${DWOLLA_KEY}"                         >> .env.production
+          echo "DWOLLA_SECRET=${DWOLLA_SECRET}"                   >> .env.production
+          echo "DWOLLA_BASE_URL=${DWOLLA_BASE_URL}"               >> .env.production
+          echo "PLAID_CLIENT_ID=${PLAID_CLIENT_ID}"               >> .env.production
+          echo "PLAID_SECRET=${PLAID_SECRET}"                     >> .env.production
+          echo "PLAID_ENV=${PLAID_ENV}"                           >> .env.production
+          echo "PLAID_PRODUCTS=${PLAID_PRODUCTS}"                 >> .env.production
+          echo "NEXT_APPWRITE_KEY=${NEXT_APPWRITE_KEY}"           >> .env.production
+          echo "APPWRITE_DATABASE_ID=${APPWRITE_DATABASE_ID}"     >> .env.production
+
+      - name: Lint the code
         run: npm run lint
 
-      - name: 🧪 Run tests and generate coverage
+      - name: Run tests
         run: npm run test -- --coverage
 
-      - name: 🔍 SonarCloud Scan
+      - name: SonarCloud scan
         uses: sonarsource/sonarcloud-github-action@v2
         with:
           projectBaseDir: .
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN:   ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN:  ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 🏗️ Build the app
-        run: npm run build
+      # 🏗️ Build – on repasse la variable « en dur » devant la commande
+      - name: Build the app
+        run: |
+          echo "Launching build with DWOLLA_ENVIRONMENT=$DWOLLA_ENVIRONMENT"
+          DWOLLA_ENVIRONMENT=$DWOLLA_ENVIRONMENT npm run build
