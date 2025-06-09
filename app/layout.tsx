@@ -13,10 +13,24 @@ const ibmPlexSerif = IBM_Plex_Serif({
 
 export const metadata: Metadata = {
   title: "Viamobile",
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+  description: "Viamobile is a modern banking for all people  ",
+icons: {
+  icon: '/icons/viamobile.png'
+}
+
+=======
+>>>>>>> 519afc0 (ci: integrate SonarCloud with GitHub Actions)
   description: "Viamobile is a modern banking platform for everyone.",
   icons: {
     icon: '/icons/logo.svg'
   }
+<<<<<<< HEAD
+=======
+>>>>>>> ea8c8d3 (feat: updated project files)
+>>>>>>> 519afc0 (ci: integrate SonarCloud with GitHub Actions)
 };
 
 export default function RootLayout({
