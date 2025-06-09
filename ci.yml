@@ -14,7 +14,8 @@ jobs:
 
     env: # 🌍 Variables d'environnement globales
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      DWOLLA_ENVIRONMENT: ${{ secrets.DWOLLA_ENVIRONMENT }}
+      NEXT_PUBLIC_DWOLLA_ENVIRONMENT=sandbox
+
 
     steps:
       - name: 🛒 Checkout repository
