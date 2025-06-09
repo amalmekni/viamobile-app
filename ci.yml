@@ -11,21 +11,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1) Récupération du code
       - uses: actions/checkout@v3
 
+      # 2) Node.js 18 + cache npm
       - uses: actions/setup-node@v3
         with:
           node-version: 18
+          cache: 'npm'
 
-      # ─── Injecte les variables dans GITHUB_ENV ───
-      # DWOLLA_ENVIRONMENT et DWOLLA_ENV auront la même valeur
-      - name: Export secrets to env
-        run: |
-          echo "DWOLLA_ENVIRONMENT=${{ secrets.DWOLLA_ENVIRONMENT }}" >> $GITHUB_ENV
-          echo "DWOLLA_ENV=${{ secrets.DWOLLA_ENVIRONMENT }}"        >> $GITHUB_ENV
+      # 3) Dépendances
+      - run: npm ci
 
-      - name: Install deps
-        run: npm ci
+      # 4) Lint (enlève cette étape si tu n’as pas de script lint)
+      - run: npm run lint
 
-      - name: Build (Next.js)
-        run: npm run build
+      # 5) Tests (enlève si tu n’as pas de tests)
+      - run: npm run test -- --coverage
+
+      # 6) Build Next.js
+      #    Next chargera automatiquement ton .env.production
+      - run: npm run build
