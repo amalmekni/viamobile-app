@@ -10,22 +10,22 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-   
     steps:
-      - name: 📥 Checkout
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: 📦 Setup Node 18
-        uses: actions/setup-node@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: 18
 
-      - name: ⬇️ Install deps
+      # ─── Injecte les variables dans GITHUB_ENV ───
+      # DWOLLA_ENVIRONMENT et DWOLLA_ENV auront la même valeur
+      - name: Export secrets to env
+        run: |
+          echo "DWOLLA_ENVIRONMENT=${{ secrets.DWOLLA_ENVIRONMENT }}" >> $GITHUB_ENV
+          echo "DWOLLA_ENV=${{ secrets.DWOLLA_ENVIRONMENT }}"        >> $GITHUB_ENV
+
+      - name: Install deps
         run: npm ci
 
-
-      - name: 🧹 Lint
-        run: npm run lint
-
-      - name: 🏗️ Build
+      - name: Build (Next.js)
         run: npm run build
