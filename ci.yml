@@ -73,6 +73,23 @@ jobs:
 
       # 🏗️ Build – on repasse la variable « en dur » devant la commande
       - name: Build the app
+            - name: 🔎 Dump variables (env)
         run: |
-          echo "Launching build with DWOLLA_ENVIRONMENT=$DWOLLA_ENVIRONMENT"
-          DWOLLA_ENVIRONMENT=$DWOLLA_ENVIRONMENT npm run build
+          echo "== ENV DUMP ==" 
+          env | grep -E '^DWOLLA_|^PLAID_' || true
+
+      - name: 🔎 Afficher .env.production (si présent)
+        run: |
+          if [ -f .env.production ]; then
+            echo "== .env.production =="
+            cat .env.production
+          else
+            echo ".env.production n'existe pas"
+          fi
+
+      - name: 🛠 Build the app (avec export direct)
+        run: |
+          echo "Je construis avec : DWOLLA_ENVIRONMENT=${DWOLLA_ENVIRONMENT}"
+          export DWOLLA_ENV=${DWOLLA_ENVIRONMENT}
+          export DWOLLA_ENVIRONMENT=${DWOLLA_ENVIRONMENT}
+          npm run build
