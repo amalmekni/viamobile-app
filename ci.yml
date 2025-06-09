@@ -12,7 +12,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    env: # 🌍 Variables d'environnement injectées depuis GitHub Secrets
+    env:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       DWOLLA_ENVIRONMENT: ${{ secrets.DWOLLA_ENVIRONMENT }}
       DWOLLA_KEY: ${{ secrets.DWOLLA_KEY }}
@@ -37,6 +37,19 @@ jobs:
       - name: 📥 Install dependencies
         run: npm ci
 
+      - name: 📝 Create .env.production from secrets
+        run: |
+          echo "DWOLLA_ENVIRONMENT=${DWOLLA_ENVIRONMENT}" >> .env.production
+          echo "DWOLLA_KEY=${DWOLLA_KEY}" >> .env.production
+          echo "DWOLLA_SECRET=${DWOLLA_SECRET}" >> .env.production
+          echo "DWOLLA_BASE_URL=${DWOLLA_BASE_URL}" >> .env.production
+          echo "PLAID_CLIENT_ID=${PLAID_CLIENT_ID}" >> .env.production
+          echo "PLAID_SECRET=${PLAID_SECRET}" >> .env.production
+          echo "PLAID_ENV=${PLAID_ENV}" >> .env.production
+          echo "PLAID_PRODUCTS=${PLAID_PRODUCTS}" >> .env.production
+          echo "NEXT_APPWRITE_KEY=${NEXT_APPWRITE_KEY}" >> .env.production
+          echo "APPWRITE_DATABASE_ID=${APPWRITE_DATABASE_ID}" >> .env.production
+
       - name: 🧹 Lint the code
         run: npm run lint
 
@@ -49,7 +62,7 @@ jobs:
           projectBaseDir: .
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # requis pour SonarCloud
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 🏗️ Build the app
         run: npm run build
