@@ -78,9 +78,7 @@ jobs:
       # ─────────────────────────────────────────────────────────
       # 4│  SonarCloud static-code & secret-detection scan
       # ─────────────────────────────────────────────────────────
-      - name: 🔍  SonarCloud Scan
+      - name: 🔍 SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v2
-        with:
-          args: >
-            -Dsonar.projectVersion=${{ github.sha }}
-            -Dsonar.login=$SONAR_TOKEN
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
