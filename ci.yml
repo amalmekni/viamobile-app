@@ -11,25 +11,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: 🧾 Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup Node.js
+      - name: 🔧 Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
-      - name: Inject secrets into .env
-        run: |
-          echo "DWOLLA_ENVIRONMENT=${{ secrets.DWOLLA_ENVIRONMENT }}" >> .env
-          echo "DWOLLA_API_KEY=${{ secrets.DWOLLA_API_KEY }}" >> .env
-          echo "DWOLLA_API_SECRET=${{ secrets.DWOLLA_API_SECRET }}" >> .env
-
-      - name: Install dependencies
+      - name: 📦 Install dependencies
         run: npm ci
 
-      - name: Lint
+      - name: 🧹 Lint the code
         run: npm run lint
 
-      - name: Build
+      - name: 🏗️ Build the app
         run: npm run build
