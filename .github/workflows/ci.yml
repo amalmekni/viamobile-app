@@ -1,31 +1,89 @@
-name: CI - Build & Lint
+name: CI – Build · Lint · Sonar
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
-  build:
+  build-test-analyse:
     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    # ─────────────────────────────────────────────────────────────
+    # 1│  Expose repository secrets as environment variables
+    #    (all values are masked in the log)
+    # ─────────────────────────────────────────────────────────────
+    env:
+      # Dwolla
+      DWOLLA_API_KEY:       ${{ secrets.DWOLLA_API_KEY }}
+      DWOLLA_API_SECRET:    ${{ secrets.DWOLLA_API_SECRET }}
+      DWOLLA_ENVIRONMENT:   ${{ secrets.DWOLLA_ENVIRONMENT }}  # keep ONE canonical name
+      DWOLLA_ENV:           ${{ secrets.DWOLLA_ENVIRONMENT }}  # ← legacy alias (safe to drop if unused)
+      DWOLLA_BASE_URL:      ${{ secrets.DWOLLA_BASE_URL }}
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      # Plaid (optional — remove if not used)
+      PLAID_CLIENT_ID:      ${{ secrets.PLAID_CLIENT_ID }}
+      PLAID_SECRET:         ${{ secrets.PLAID_SECRET }}
+      PLAID_PRODUCTS:       ${{ secrets.PLAID_PRODUCTS }}
+      PLAID_ENV:           ${{ secrets.PLAID_ENV }}
+
+      # SonarCloud
+      SONAR_TOKEN:          ${{ secrets.SONAR_TOKEN }}
+
+    steps:
+      # ─────────────────────────────────────────────────────────
+      - name: 📥  Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧  Set up Node 18 (with npm cache)
+        uses: actions/setup-node@v4
         with:
           node-version: 18
+          cache: npm
 
-      - name: Install dependencies
-        run: npm install
+      - name: 📦  Install dependencies
+        run: npm ci
 
-      - name: Lint the code
+      # ─────────────────────────────────────────────────────────
+      # 2│  Create a *temporary* .env file for tools that insist on it
+      #    It is deleted before the Sonar scan, so secrets never reach
+      #    the analyser or end up as artefacts.
+      # ─────────────────────────────────────────────────────────
+      - name: 🔑  Create throw-away .env.ci
+        run: |
+          cat <<EOF > .env.ci
+          DWOLLA_API_KEY=$DWOLLA_API_KEY
+          DWOLLA_API_SECRET=$DWOLLA_API_SECRET
+          DWOLLA_ENVIRONMENT=$DWOLLA_ENVIRONMENT
+          DWOLLA_BASE_URL=$DWOLLA_BASE_URL
+          PLAID_CLIENT_ID=$PLAID_CLIENT_ID
+          PLAID_SECRET=$PLAID_SECRET
+          PLAID_PRODUCTS=$PLAID_PRODUCTS
+          PLAID_ENV=$PLAID_ENV
+          EOF
+
+      - name: 🧹  Lint
         run: npm run lint
 
-      - name: Build the app
+      - name: 🧪  Unit tests (with coverage)
+        run: npm test -- --coverage
+
+      - name: 🛠️  Build
         run: npm run build
+
+      # ─────────────────────────────────────────────────────────
+      # 3│  Remove the temp file so Sonar never scans live secrets
+      # ─────────────────────────────────────────────────────────
+      - name: 🗑️  Delete temp .env
+        run: rm .env.ci
+
+      # ─────────────────────────────────────────────────────────
+      # 4│  SonarCloud static-code & secret-detection scan
+      # ─────────────────────────────────────────────────────────
+      - name: 🔍  SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v2
+        with:
+          args: >
+            -Dsonar.projectVersion=${{ github.sha }}
+            -Dsonar.login=$SONAR_TOKEN
