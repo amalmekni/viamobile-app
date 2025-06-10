@@ -11,15 +11,15 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-       DWOLLA_ENVIRONMENT: ${{ secrets.DWOLLA_ENVIRONMENT }}
-       DWOLLA_API_KEY: ${{ secrets.DWOLLA_API_KEY }}
-       DWOLLA_API_SECRET: ${{ secrets.DWOLLA_API_SECRET }}
-       SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-       NEXT_PUBLIC_APPWRITE_ENDPOINT: ${{ secrets.NEXT_PUBLIC_APPWRITE_ENDPOINT }}
-       NEXT_PUBLIC_APPWRITE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_APPWRITE_PROJECT_ID }}
-       NEXT_PUBLIC_APPWRITE_DATABASE_ID: ${{ secrets.NEXT_PUBLIC_APPWRITE_DATABASE_ID }}
-       NEXT_PUBLIC_APPWRITE_COLLECTION_ID: ${{ secrets.NEXT_PUBLIC_APPWRITE_COLLECTION_ID }}
-       NEXT_PUBLIC_APPWRITE_API_KEY: ${{ secrets.NEXT_PUBLIC_APPWRITE_API_KEY }}
+      DWOLLA_ENVIRONMENT: ${{ secrets.DWOLLA_ENVIRONMENT }}
+      DWOLLA_API_KEY: ${{ secrets.DWOLLA_API_KEY }}
+      DWOLLA_API_SECRET: ${{ secrets.DWOLLA_API_SECRET }}
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      NEXT_PUBLIC_APPWRITE_ENDPOINT: ${{ secrets.NEXT_PUBLIC_APPWRITE_ENDPOINT }}
+      NEXT_PUBLIC_APPWRITE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_APPWRITE_PROJECT_ID }}
+      NEXT_PUBLIC_APPWRITE_DATABASE_ID: ${{ secrets.NEXT_PUBLIC_APPWRITE_DATABASE_ID }}
+      NEXT_PUBLIC_APPWRITE_COLLECTION_ID: ${{ secrets.NEXT_PUBLIC_APPWRITE_COLLECTION_ID }}
+      NEXT_PUBLIC_APPWRITE_API_KEY: ${{ secrets.NEXT_PUBLIC_APPWRITE_API_KEY }}
 
     steps:
       - name: ⬇️ Checkout repository
@@ -47,3 +47,6 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_PROJECT_KEY: amalmekni_viamobile-app
           SONAR_ORGANIZATION: amalmekni
+
+      - name: Debug Dwolla Environment
+        run: echo "Dwolla Environment: ${{ env.DWOLLA_ENVIRONMENT }}"
