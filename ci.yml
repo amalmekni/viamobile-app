@@ -9,6 +9,12 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      DWOLLA_ENVIRONMENT: ${{ secrets.DWOLLA_ENVIRONMENT }}
+      DWOLLA_API_KEY: ${{ secrets.DWOLLA_API_KEY }}
+      DWOLLA_API_SECRET: ${{ secrets.DWOLLA_API_SECRET }}
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }} # facultatif
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
